@@ -51,17 +51,19 @@ const SignIn = () => {
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: var(--spacing-xl);
+          padding: var(--container-padding-mobile);
         }
 
         .sign-in-card {
           text-align: center;
-          max-width: 400px;
           width: 100%;
+          max-width: var(--container-width-sm);
+          padding: var(--spacing-lg);
         }
 
         .sign-in-card h1 {
-          font-size: var(--font-size-2xl);
+          font-size: clamp(var(--font-size-xl), 5vw, var(--font-size-2xl));
+          line-height: var(--line-height-tight);
           margin-bottom: var(--spacing-md);
           color: var(--text-color);
         }
@@ -69,11 +71,23 @@ const SignIn = () => {
         .sign-in-card p {
           color: var(--secondary-color);
           margin-bottom: var(--spacing-lg);
+          font-size: clamp(var(--font-size-base), 3vw, var(--font-size-lg));
         }
 
         .google-btn {
           width: 100%;
           margin-top: var(--spacing-md);
+          padding: var(--spacing-md) var(--spacing-lg);
+        }
+
+        @media (min-width: 640px) {
+          .sign-in-container {
+            padding: var(--container-padding-tablet);
+          }
+
+          .sign-in-card {
+            padding: var(--spacing-xl);
+          }
         }
       `}</style>
     </div>
