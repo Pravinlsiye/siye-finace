@@ -3,6 +3,8 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from './contexts/AuthContext';
 import SignIn from './pages/SignIn';
 import Dashboard from './pages/Dashboard';
+import ProjectDashboard from './pages/ProjectDashboard';
+import FinancialPages from './pages/FinancialPages';
 import './styles/main.css';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
@@ -24,6 +26,22 @@ function App() {
               element={
                 <PrivateRoute>
                   <Dashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/projects"
+              element={
+                <PrivateRoute>
+                  <ProjectDashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/financial/:projectId"
+              element={
+                <PrivateRoute>
+                  <FinancialPages />
                 </PrivateRoute>
               }
             />

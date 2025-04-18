@@ -1,11 +1,18 @@
+import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useState, useRef, useEffect } from 'react';
+import ProjectCard from '../components/ProjectCard';
+import ProjectForm from '../components/ProjectForm';
+import { Project, ProjectFormData } from '../types/Project';
+import { getProjects, createProject, updateProject, deleteProject, duplicateProject } from '../services/projectService';
 
-const Dashboard = () => {
+const Dashboard: React.FC = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [selectedProject, setSelectedProject] = useState<Project | undefined>();
   const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -18,9 +25,17 @@ const Dashboard = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSignOut = () => {
-    signOut();
-    navigate('/');
+  useEffect(() => {
+    setProjects(getProjects());
+  }, []);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/signin');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
   return (
@@ -65,14 +80,77 @@ const Dashboard = () => {
 
       <main className="container dashboard-content">
         <section className="projects-section">
-          <h2>My Projects</h2>
+          <div className="section-header">
+            <h2>My Projects</h2>
+            <button className="btn btn-primary" onClick={() => {
+              setSelectedProject(undefined);
+              setIsFormOpen(true);
+            }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="currentColor"/>
+              </svg>
+              New Project
+            </button>
+          </div>
           <div className="cards-grid">
-            <div className="card project-card">
-              <h3>Project Overview</h3>
-              <p>No projects yet. Start by creating a new project.</p>
-            </div>
+            {projects.length === 0 ? (
+              <div className="card project-card empty-state">
+                <h3>No Projects Yet</h3>
+                <p>Start by creating a new project using the button above.</p>
+              </div>
+            ) : (
+              projects.map(project => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  onEdit={(project) => {
+                    setSelectedProject(project);
+                    setIsFormOpen(true);
+                  }}
+                  onDelete={async (id) => {
+                    if (window.confirm('Are you sure you want to delete this project?')) {
+                      deleteProject(id);
+                      setProjects(getProjects());
+                    }
+                  }}
+                  onDuplicate={async (id) => {
+                    try {
+                      await duplicateProject(id);
+                      setProjects(getProjects());
+                    } catch (error) {
+                      console.error('Error duplicating project:', error);
+                    }
+                  }}
+                />
+              ))
+            )}
           </div>
         </section>
+
+        {isFormOpen && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <ProjectForm
+                project={selectedProject}
+                onSubmit={async (data: ProjectFormData) => {
+                  try {
+                    if (selectedProject) {
+                      await updateProject(selectedProject.id, data);
+                    } else {
+                      await createProject(data);
+                    }
+                    setProjects(getProjects());
+                    setIsFormOpen(false);
+                  } catch (error) {
+                    console.error('Error saving project:', error);
+                    alert(error instanceof Error ? error.message : 'Failed to save project');
+                  }
+                }}
+                onCancel={() => setIsFormOpen(false)}
+              />
+            </div>
+          </div>
+        )}
       </main>
 
       <style>{`
@@ -165,13 +243,73 @@ const Dashboard = () => {
           padding: 0 clamp(1rem, 3vw, 2rem);
         }
 
+        .section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0 clamp(1rem, 3vw, 2rem);
+          margin-bottom: clamp(1.5rem, 4vh, 2rem);
+        }
+
+        .btn {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.75rem 1rem;
+          border-radius: 0.5rem;
+          font-weight: 500;
+          transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+          background-color: var(--primary-color);
+          color: white;
+        }
+
+        .btn-primary:hover {
+          background-color: var(--primary-color-dark);
+        }
+
+        .empty-state {
+          grid-column: 1 / -1;
+          text-align: center;
+          padding: 2rem;
+        }
+
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 100;
+        }
+
+        .modal-content {
+          background-color: white;
+          border-radius: 1rem;
+          width: 90%;
+          max-width: 600px;
+          max-height: 90vh;
+          overflow-y: auto;
+        }
+
         .project-card {
           height: 100%;
           transition: transform var(--transition-normal);
+          padding: 1.5rem;
+          border: 1px solid var(--border-color);
+          border-radius: 0.75rem;
+          background-color: white;
         }
 
         .project-card:hover {
           transform: translateY(-2px);
+          box-shadow: var(--shadow-lg);
         }
 
         .user-dropdown {
