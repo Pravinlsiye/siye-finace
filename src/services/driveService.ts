@@ -5,7 +5,7 @@ const DRIVE_FOLDER_NAME = 'Financial Projects';
 const DRIVE_MIME_TYPE = 'application/json';
 
 // Initialize Google Drive API client
-const initDriveClient = async () => {
+export const initDriveClient = async () => {
   try {
     // Check if gapi is loaded and initialized
     if (!window.gapi || !window.gapi.client) {
@@ -27,7 +27,7 @@ const initDriveClient = async () => {
 };
 
 // Create or get the app folder in Drive
-const getAppFolder = async (driveClient: any) => {
+export const getAppFolder = async (driveClient: any): Promise<string> => {
   try {
     // Search for existing folder
     const response = await driveClient.files.list({
