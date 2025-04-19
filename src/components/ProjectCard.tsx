@@ -37,7 +37,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       <div className="project-actions">
         <button
           className="action-btn action-btn-view"
-          onClick={() => navigate(`/financial/${project.id}`)}
+          onClick={() => navigate(`/project/${project.id}/financial-log`)}
         >
           View Financial
         </button>

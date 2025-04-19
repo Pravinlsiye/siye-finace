@@ -19,23 +19,34 @@ const FinancialPages: React.FC = () => {
 
   useEffect(() => {
     if (projectId) {
-      // Load project data
-      const projectData = localStorage.getItem(`project_${projectId}`);
-      if (projectData) {
-        setProject(JSON.parse(projectData));
-      }
-
-      // Load daily logs
-      const logsData = localStorage.getItem(`daily_logs_${projectId}`);
-      if (logsData) {
-        setDailyLogs(JSON.parse(logsData));
-      }
-
-      // Load hike config
-      const hikeData = localStorage.getItem(`hike_config_${projectId}`);
-      if (hikeData) {
-        setHikeConfig(JSON.parse(hikeData));
-      }
+      // Load project data using projectService
+      const loadProjectData = async () => {
+        try {
+          // Import dynamically to avoid circular dependencies
+          const { getProjectById } = await import('../services/projectService');
+          const projectData = getProjectById(projectId);
+          
+          if (projectData) {
+            setProject(projectData);
+            
+            // Load financial data
+            const financialData = localStorage.getItem(`financial_data_${projectId}`);
+            if (financialData) {
+              const parsedData = JSON.parse(financialData);
+              setDailyLogs(parsedData.dailyLogs || []);
+              setHikeConfig(parsedData.hikeConfig || {
+                baseHike: 10,
+                additionalHike: 5,
+                effectiveDate: new Date().toISOString().split('T')[0]
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error loading project data:', error);
+        }
+      };
+      
+      loadProjectData();
     }
   }, [projectId]);
 

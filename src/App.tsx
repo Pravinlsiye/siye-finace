@@ -38,7 +38,7 @@ function App() {
               }
             />
             <Route
-              path="/financial/:projectId"
+              path="/project/:projectId/financial-log"
               element={
                 <PrivateRoute>
                   <FinancialPages />
