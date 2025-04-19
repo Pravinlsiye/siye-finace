@@ -23,3 +23,46 @@ export interface ProjectFinancialData {
   dailyLogs: DailyLogEntry[];
   hikeConfig: HikeConfig;
 }
+
+// Interface for balance sheet entry
+export interface BalanceSheetEntry {
+  financialYear: number;
+  assets: {
+    fixedAssets: number;
+    currentAssets: {
+      closingStock: number;
+      tradeDebtors: number;
+      cashAndBank: number;
+    };
+    totalAssets: number;
+  };
+  liabilities: {
+    capital: {
+      openingCapital: number;
+      currentYearProfit: number;
+      totalCapital: number;
+    };
+    currentLiabilities: {
+      loans: number;
+      tradeCreditors: number;
+    };
+    totalLiabilities: number;
+  };
+  metrics: {
+    currentRatio: number;
+    drawingPower: number;
+    capitalDifference: number;
+  };
+}
+
+// Interface for project
+export interface Project {
+  id: string;
+  companyName: string;
+  logo?: string;
+  financialYearStart: number;
+  financialYearEnd: number;
+  projectId: string;
+  dailyLogs: DailyLogEntry[];
+  hikeConfig: HikeConfig;
+}

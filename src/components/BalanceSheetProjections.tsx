@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { BalanceSheetEntry } from '../types/FinancialReports';
-import { DailyLogEntry, HikeConfig } from '../types/FinancialData';
-import { Project } from '../types/Project';
+import { Project, DailyLogEntry, HikeConfig, BalanceSheetEntry } from '../types/FinancialData';
 import ReportExport from './ReportExport';
+import MPBFRatios from './MPBFRatios';
 
 interface BalanceSheetProjectionsProps {
   projectId: string;
@@ -210,23 +209,22 @@ const BalanceSheetProjections: React.FC<BalanceSheetProjectionsProps> = ({
                 </table>
               </div>
 
+              <MPBFRatios
+                project={project}
+                dailyLogs={dailyLogs}
+                hikeConfig={hikeConfig}
+                currentAssets={report.assets.currentAssets.closingStock + 
+                              report.assets.currentAssets.tradeDebtors + 
+                              report.assets.currentAssets.cashAndBank}
+                currentLiabilities={report.liabilities.currentLiabilities.loans + 
+                                   report.liabilities.currentLiabilities.tradeCreditors}
+                closingStock={report.assets.currentAssets.closingStock}
+                tradeDebtors={report.assets.currentAssets.tradeDebtors}
+              />
+              
               <div className="metrics-section">
-                <h3>Financial Metrics</h3>
+                <h3>Capital Analysis</h3>
                 <div className="metrics-grid">
-                  <div className="metric-card">
-                    <h4>Current Ratio</h4>
-                    <p className={`metric-value ${report.metrics.currentRatio < 2 ? 'warning' : 'success'}`}>
-                      {formatRatio(report.metrics.currentRatio)}
-                    </p>
-                    <p className="metric-note">
-                      {report.metrics.currentRatio < 2 ? 'Below recommended 2:1 ratio' : 'Healthy ratio'}
-                    </p>
-                  </div>
-                  <div className="metric-card">
-                    <h4>Drawing Power</h4>
-                    <p className="metric-value">{formatCurrency(report.metrics.drawingPower)}</p>
-                    <p className="metric-note">Available credit limit based on assets</p>
-                  </div>
                   <div className="metric-card">
                     <h4>Capital Position</h4>
                     <p className={`metric-value ${report.metrics.capitalDifference < 0 ? 'warning' : 'success'}`}>
@@ -237,6 +235,19 @@ const BalanceSheetProjections: React.FC<BalanceSheetProjectionsProps> = ({
                   </div>
                 </div>
               </div>
+
+              <MPBFRatios
+                project={project}
+                dailyLogs={dailyLogs}
+                hikeConfig={hikeConfig}
+                currentAssets={report.assets.currentAssets.closingStock + 
+                              report.assets.currentAssets.tradeDebtors + 
+                              report.assets.currentAssets.cashAndBank}
+                currentLiabilities={report.liabilities.currentLiabilities.loans + 
+                                   report.liabilities.currentLiabilities.tradeCreditors}
+                closingStock={report.assets.currentAssets.closingStock}
+                tradeDebtors={report.assets.currentAssets.tradeDebtors}
+              />
             </div>
           ))}
       </div>
