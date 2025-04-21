@@ -18,9 +18,9 @@ export const createProject = async (projectData: ProjectFormData): Promise<Proje
   const projects = getProjects();
   
   // Check for duplicate PAN
-  if (projects.some(p => p.panNumber === projectData.panNumber)) {
-    throw new Error('A project with this PAN number already exists');
-  }
+  // if (projects.some(p => p.panNumber === projectData.panNumber)) {
+  //   throw new Error('A project with this PAN number already exists');
+  // }
 
   const newProject: Project = {
     ...projectData,
@@ -50,13 +50,13 @@ export const updateProject = async (id: string, projectData: ProjectFormData): P
     throw new Error('Project not found');
   }
 
-  // Check for duplicate PAN, excluding current project
-  const duplicatePan = projects.some(
-    p => p.panNumber === projectData.panNumber && p.id !== id
-  );
-  if (duplicatePan) {
-    throw new Error('A project with this PAN number already exists');
-  }
+  // // Check for duplicate PAN, excluding current project
+  // const duplicatePan = projects.some(
+  //   p => p.panNumber === projectData.panNumber && p.id !== id
+  // );
+  // if (duplicatePan) {
+  //   throw new Error('A project with this PAN number already exists');
+  // }
 
   const updatedProject: Project = {
     ...projectData,

@@ -32,7 +32,7 @@ const Dashboard: React.FC = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
-      navigate('/signin');
+      navigate('/');
     } catch (error) {
       console.error('Error signing out:', error);
     }
