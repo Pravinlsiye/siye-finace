@@ -20,6 +20,15 @@ const MPBFRatios: React.FC<MPBFRatiosProps> = ({
   closingStock,
   tradeDebtors,
 }) => {
+  console.log('MPBFRatiosProps:', {
+    project,
+    dailyLogs,
+    hikeConfig,
+    currentAssets,
+    currentLiabilities,
+    closingStock,
+    tradeDebtors,
+  });
   // Calculate MPBF ratios
   const currentRatio = currentAssets / currentLiabilities;
   const stockDP = closingStock * 0.75; // 75% of stock value

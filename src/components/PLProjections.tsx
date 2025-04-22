@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PLEntry, ReportConfig } from '../types/FinancialReports';
+import { PLEntry } from '../types/FinancialReports';
 import { DailyLogEntry, HikeConfig } from '../types/FinancialData';
 import { Project } from '../types/Project';
 
@@ -18,6 +18,7 @@ const PLProjections: React.FC<PLProjectionsProps> = ({
   hikeConfig,
   onNetProfitChange
 }) => {
+  console.log('PLProjections component rendered, projectId:', projectId);
   const [plReports, setPLReports] = useState<PLEntry[]>([]);
   const [showPercentages, setShowPercentages] = useState(true);
   const [selectedYear, setSelectedYear] = useState<number>(project.financialYearStart);

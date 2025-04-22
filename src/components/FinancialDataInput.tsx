@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DailyLogEntry, ProjectFinancialData, HikeConfig } from '../types/FinancialData';
+import { ProjectFinancialData, HikeConfig } from '../types/FinancialData';
 import '../styles/financial.css';
 
 interface FinancialDataInputProps {
@@ -34,7 +34,7 @@ interface ProfitLossData {
 const FinancialDataInput: React.FC<FinancialDataInputProps> = ({ projectId }) => {
   const [yearlyData, setYearlyData] = useState<YearlyData[]>([]);
   const [profitLossData, setProfitLossData] = useState<ProfitLossData[]>([]);
-  const [hikeConfig, setHikeConfig] = useState<HikeConfig | null>(null);
+  const [hikeConfig] = useState<HikeConfig | null>(null);
 
   useEffect(() => {
     // Load saved data from localStorage
@@ -42,6 +42,7 @@ const FinancialDataInput: React.FC<FinancialDataInputProps> = ({ projectId }) =>
       const savedData = localStorage.getItem(`financial_data_${projectId}`);
       if (savedData) {
         const parsedData: ProjectFinancialData = JSON.parse(savedData);
+        console.log('Loaded financial data:', parsedData);
         // Initialize data structure if needed
         if (!yearlyData.length) {
           initializeYearlyData();

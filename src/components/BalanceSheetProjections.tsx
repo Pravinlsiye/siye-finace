@@ -18,6 +18,7 @@ const BalanceSheetProjections: React.FC<BalanceSheetProjectionsProps> = ({
   hikeConfig,
   plNetProfit
 }) => {
+  console.log('BalanceSheetProjections props:', { projectId, project, dailyLogs, hikeConfig, plNetProfit });
   const [balanceSheet, setBalanceSheet] = useState<BalanceSheetEntry[]>([]);
   const [selectedYear, setSelectedYear] = useState<number>(project.financialYearStart);
 
@@ -99,9 +100,9 @@ const BalanceSheetProjections: React.FC<BalanceSheetProjectionsProps> = ({
     }).format(amount);
   };
 
-  const formatRatio = (value: number): string => {
-    return value.toFixed(2);
-  };
+  // const formatRatio = (value: number): string => {
+  //   return value.toFixed(2);
+  // };
 
   const getCapitalSuggestion = (difference: number): string => {
     if (difference < 0) {
@@ -257,7 +258,13 @@ const BalanceSheetProjections: React.FC<BalanceSheetProjectionsProps> = ({
         .map(report => (
           <ReportExport
             key={report.financialYear}
-            project={project}
+
+            project={{...project, logo: '', 
+              panNumber: '',
+              address: '',
+              createdAt: '',
+              updatedAt: '',
+            }}
             balanceSheet={report}
             reportType="balance-sheet"
           />

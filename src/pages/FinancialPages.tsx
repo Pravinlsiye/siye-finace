@@ -107,7 +107,12 @@ const FinancialPages: React.FC = () => {
         {currentView === 'balance' && (
           <BalanceSheetProjections
             projectId={projectId}
-            project={project}
+            project={{
+              ...project,
+              projectId: project.id,
+              dailyLogs: dailyLogs,
+              hikeConfig: hikeConfig
+            }}
             dailyLogs={dailyLogs}
             hikeConfig={hikeConfig}
             plNetProfit={netProfit}

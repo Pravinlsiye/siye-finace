@@ -1,7 +1,6 @@
 import { Project } from '../types/Project';
-import { BalanceSheetEntry, PLEntry } from '../types/FinancialReports';
+import { BalanceSheetEntry } from '../types/FinancialReports';
 import { initDriveClient, getAppFolder } from './driveService';
-import { generatePDF } from './pdfService';
 import jsPDF from 'jspdf';
 
 interface ReportOptions {
