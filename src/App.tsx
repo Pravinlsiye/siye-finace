@@ -20,9 +20,9 @@ function App() {
       <AuthProvider>
         <Router>
           <Routes>
-            <Route path="/" element={<SignIn />} />
+            <Route path="/siye-finace/" element={<SignIn />} />
             <Route
-              path="/dashboard"
+              path="/siye-finace/dashboard"
               element={
                 <PrivateRoute>
                   <Dashboard />
@@ -30,7 +30,7 @@ function App() {
               }
             />
             <Route
-              path="/projects"
+              path="/siye-finace/projects"
               element={
                 <PrivateRoute>
                   <ProjectDashboard />
@@ -38,7 +38,7 @@ function App() {
               }
             />
             <Route
-              path="/project/:projectId/financial-log"
+              path="/siye-finace/project/:projectId/financial-log"
               element={
                 <PrivateRoute>
                   <FinancialPages />

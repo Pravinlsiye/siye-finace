@@ -10,7 +10,7 @@ const SignIn = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard');
+      navigate('/siye-finace/dashboard');
     }
   }, [isAuthenticated, navigate]);
 
@@ -20,7 +20,7 @@ const SignIn = () => {
       try {
         await signIn(response);
         Logger.info('User signed in and user info fetched');
-        navigate('/dashboard');
+        navigate('/siye-finace/dashboard');
       } catch (error) {
         const errorDetails = error instanceof Error ? error.message : JSON.stringify(error);
         Logger.error('Sign in or user info fetch failed', { error: errorDetails });
