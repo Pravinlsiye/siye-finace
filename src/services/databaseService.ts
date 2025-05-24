@@ -118,7 +118,7 @@ class DatabaseService {
   }
 
   // Financial Data operations
-  async addFinancialData(projectId: string, financialData: any): Promise<IProject | null> {
+  async addFinancialData(projectId: string, financialData: unknown): Promise<IProject | null> {
     try {
       return await Project.findByIdAndUpdate(
         projectId,
@@ -131,7 +131,7 @@ class DatabaseService {
     }
   }
 
-  async updateFinancialData(projectId: string, year: number, financialData: any): Promise<IProject | null> {
+  async updateFinancialData(projectId: string, year: number, financialData: unknown): Promise<IProject | null> {
     try {
       return await Project.findOneAndUpdate(
         { _id: projectId, 'financialData.year': year },
@@ -145,7 +145,7 @@ class DatabaseService {
   }
 
   // Report operations
-  async addReport(projectId: string, report: any): Promise<IProject | null> {
+  async addReport(projectId: string, report: unknown): Promise<IProject | null> {
     try {
       return await Project.findByIdAndUpdate(
         projectId,
@@ -172,7 +172,7 @@ class DatabaseService {
   }
 
   // Permission operations
-  async updateProjectPermissions(projectId: string, permissions: any[]): Promise<IProject | null> {
+  async updateProjectPermissions(projectId: string, permissions: unknown[]): Promise<IProject | null> {
     try {
       return await Project.findByIdAndUpdate(
         projectId,

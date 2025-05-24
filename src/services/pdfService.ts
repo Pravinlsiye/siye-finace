@@ -3,6 +3,35 @@ import { BalanceSheetEntry, PLEntry } from '../types/FinancialReports';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 
+// Extend jsPDF type to include autoTable
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: (options: AutoTableOptions) => void;
+    lastAutoTable: {
+      finalY: number;
+    };
+  }
+}
+
+// Define a type for autoTable options
+interface AutoTableOptions {
+  startY?: number;
+  head: Array<Array<string>>;
+  body: Array<Array<string>>;
+  theme?: 'striped' | 'grid' | 'plain';
+  styles?: {
+    fontSize?: number;
+    cellPadding?: number;
+  };
+  headStyles?: {
+    fillColor?: [number, number, number];
+    textColor?: number;
+  };
+  alternateRowStyles?: {
+    fillColor?: [number, number, number];
+  };
+}
+
 interface PDFOptions {
   includeSignature?: boolean;
   footnotes?: string[];
@@ -22,6 +51,64 @@ const DEFAULT_FONT_SIZE = 12;
 const HEADER_FONT_SIZE = 16;
 const TITLE_FONT_SIZE = 20;
 
+/**
+ * Formats a number as currency in INR.
+ * @param amount - The amount to format.
+ * @returns The formatted currency string.
+ */
+const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
+/**
+ * Generates table data for a balance sheet report.
+ * @param data - The balance sheet entry data.
+ * @returns The table data as an array of rows.
+ */
+const generateBalanceSheetTable = (data: BalanceSheetEntry): Array<[string, string]> => [
+  ['Fixed Assets', formatCurrency(data.assets.fixedAssets)],
+  ['Current Assets', ''],
+  ['Closing Stock', formatCurrency(data.assets.currentAssets.closingStock)],
+  ['Trade Debtors', formatCurrency(data.assets.currentAssets.tradeDebtors)],
+  ['Cash and Bank', formatCurrency(data.assets.currentAssets.cashAndBank)],
+  ['Total Assets', formatCurrency(data.assets.totalAssets)],
+  ['Capital', ''],
+  ['Opening Capital', formatCurrency(data.liabilities.capital.openingCapital)],
+  ['Current Year Profit', formatCurrency(data.liabilities.capital.currentYearProfit)],
+  ['Total Capital', formatCurrency(data.liabilities.capital.totalCapital)],
+  ['Current Liabilities', ''],
+  ['Loans', formatCurrency(data.liabilities.currentLiabilities.loans)],
+  ['Trade Creditors', formatCurrency(data.liabilities.currentLiabilities.tradeCreditors)],
+  ['Total Liabilities', formatCurrency(data.liabilities.totalLiabilities)],
+];
+
+/**
+ * Generates table data for a profit and loss report.
+ * @param data - The profit and loss entry data.
+ * @returns The table data as an array of rows.
+ */
+const generatePLTable = (data: PLEntry): Array<[string, string]> => [
+  ['Opening Stock', formatCurrency(data.openingStock)],
+  ['Purchases', formatCurrency(data.purchases)],
+  ['Direct Expenses', formatCurrency(data.directExpenses)],
+  ['Sales', formatCurrency(data.sales)],
+  ['Gross Profit', formatCurrency(data.grossProfit)],
+  ['Indirect Expenses', formatCurrency(data.indirectExpenses)],
+  ['Net Profit', formatCurrency(data.netProfit)],
+];
+
+/**
+ * Generates a PDF document for financial reports.
+ * @param project - The project details.
+ * @param data - The financial data (balance sheet or profit and loss).
+ * @param reportType - The type of report to generate.
+ * @param options - Additional options for the PDF.
+ * @returns A promise that resolves to a Blob containing the PDF.
+ */
 export const generatePDF = async (
   project: Project,
   data: BalanceSheetEntry | PLEntry,
@@ -68,25 +155,25 @@ export const generatePDF = async (
     : generatePLTable(data as PLEntry);
 
   // Add table
-  (doc as any).autoTable({
+  doc.autoTable({
     startY: 80,
     head: [['Particulars', 'Amount']],
     body: tableData,
     theme: 'grid',
     styles: {
       fontSize: DEFAULT_FONT_SIZE,
-      cellPadding: 5
+      cellPadding: 5,
     },
     headStyles: {
       fillColor: [41, 128, 185],
-      textColor: 255
+      textColor: 255,
     },
     alternateRowStyles: {
-      fillColor: [240, 240, 240]
-    }
+      fillColor: [240, 240, 240],
+    },
   });
 
-  let currentY = (doc as any).lastAutoTable.finalY + 20;
+  let currentY = doc.lastAutoTable.finalY + 20;
 
   // Add signature section if requested
   if (options.includeSignature) {
@@ -114,47 +201,4 @@ export const generatePDF = async (
   }
 
   return doc.output('blob');
-};
-
-const generateBalanceSheetTable = (data: BalanceSheetEntry): Array<[string, string]> => {
-  const formatCurrency = (amount: number) => new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0
-  }).format(amount);
-
-  return [
-    ['Fixed Assets', formatCurrency(data.assets.fixedAssets)],
-    ['Current Assets', ''],
-    ['Closing Stock', formatCurrency(data.assets.currentAssets.closingStock)],
-    ['Trade Debtors', formatCurrency(data.assets.currentAssets.tradeDebtors)],
-    ['Cash and Bank', formatCurrency(data.assets.currentAssets.cashAndBank)],
-    ['Total Assets', formatCurrency(data.assets.totalAssets)],
-    ['Capital', ''],
-    ['Opening Capital', formatCurrency(data.liabilities.capital.openingCapital)],
-    ['Current Year Profit', formatCurrency(data.liabilities.capital.currentYearProfit)],
-    ['Total Capital', formatCurrency(data.liabilities.capital.totalCapital)],
-    ['Current Liabilities', ''],
-    ['Loans', formatCurrency(data.liabilities.currentLiabilities.loans)],
-    ['Trade Creditors', formatCurrency(data.liabilities.currentLiabilities.tradeCreditors)],
-    ['Total Liabilities', formatCurrency(data.liabilities.totalLiabilities)]
-  ];
-};
-
-const generatePLTable = (data: PLEntry): Array<[string, string]> => {
-  const formatCurrency = (amount: number) => new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0
-  }).format(amount);
-
-  return [
-    ['Opening Stock', formatCurrency(data.openingStock)],
-    ['Purchases', formatCurrency(data.purchases)],
-    ['Direct Expenses', formatCurrency(data.directExpenses)],
-    ['Sales', formatCurrency(data.sales)],
-    ['Gross Profit', formatCurrency(data.grossProfit)],
-    ['Indirect Expenses', formatCurrency(data.indirectExpenses)],
-    ['Net Profit', formatCurrency(data.netProfit)]
-  ];
 };

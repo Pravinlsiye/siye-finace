@@ -1,5 +1,59 @@
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 import { Project, User, IProject, IUser } from '../models/models';
+
+// Load environment variables from .env file
+dotenv.config();
+
+// Define local types for IReport and IFinancialData based on IProject structure
+interface IReport {
+  name: string;
+  year: number;
+  uploadedBy: string;
+  fileUrl: string;
+}
+
+interface IFinancialData {
+  year: number;
+  openingStock: number;
+  purchases: number;
+  sales: number;
+  directExpenses: number;
+  closingStock: number;
+  grossProfit: number;
+  expenses: Array<{
+    name: string;
+    hikePercent: number;
+    amount: number;
+  }>;
+  miscIncome: number;
+  netProfit: number;
+  ratios: {
+    closingStockPercent: number;
+    grossProfitPercent: number;
+    netProfitPercent: number;
+  };
+  balanceSheet: {
+    liabilities: Array<{
+      name: string;
+      amount: number;
+    }>;
+    assets: Array<{
+      name: string;
+      amount: number;
+    }>;
+  };
+  mpbfRatios: {
+    currentAssets: number;
+    currentLiabilities: number;
+    currentRatio: number;
+  };
+  capitalCheck: {
+    openingCapitalPlusProfit: number;
+    capitalAsPerBS: number;
+    excessOrShortfall: number;
+  };
+}
 
 class DatabaseService {
   private static instance: DatabaseService;
@@ -14,9 +68,13 @@ class DatabaseService {
     return DatabaseService.instance;
   }
 
-  async connect(mongoUri: string): Promise<void> {
+  async connect(): Promise<void> {
     if (!this.isConnected) {
       try {
+        const mongoUri = process.env.MONGODB_URI;
+        if (!mongoUri) {
+          throw new Error('MongoDB connection string is not defined in the environment variables.');
+        }
         await mongoose.connect(mongoUri);
         this.isConnected = true;
         console.log('Connected to MongoDB');
@@ -70,8 +128,8 @@ class DatabaseService {
       return await Project.find({
         $or: [
           { createdBy: userEmail },
-          { 'permissions.email': userEmail }
-        ]
+          { 'permissions.email': userEmail },
+        ],
       });
     } catch (error) {
       console.error('Get projects by user error:', error);
@@ -127,7 +185,7 @@ class DatabaseService {
   }
 
   // Financial Data operations
-  async addFinancialData(projectId: string, financialData: any): Promise<IProject | null> {
+  async addFinancialData(projectId: string, financialData: IFinancialData): Promise<IProject | null> {
     try {
       return await Project.findByIdAndUpdate(
         projectId,
@@ -140,7 +198,7 @@ class DatabaseService {
     }
   }
 
-  async updateFinancialData(projectId: string, year: number, financialData: any): Promise<IProject | null> {
+  async updateFinancialData(projectId: string, year: number, financialData: IFinancialData): Promise<IProject | null> {
     try {
       return await Project.findOneAndUpdate(
         { _id: projectId, 'financialData.year': year },
@@ -154,7 +212,7 @@ class DatabaseService {
   }
 
   // Report operations
-  async addReport(projectId: string, reportData: any): Promise<IProject | null> {
+  async addReport(projectId: string, reportData: IReport): Promise<IProject | null> {
     try {
       return await Project.findByIdAndUpdate(
         projectId,
@@ -167,7 +225,7 @@ class DatabaseService {
     }
   }
 
-  async updateReport(projectId: string, reportId: string, reportData: any): Promise<IProject | null> {
+  async updateReport(projectId: string, reportId: string, reportData: IReport): Promise<IProject | null> {
     try {
       return await Project.findOneAndUpdate(
         { _id: projectId, 'reports._id': reportId },
